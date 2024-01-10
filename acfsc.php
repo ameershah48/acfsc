@@ -8,9 +8,11 @@
  * Author URI: https://ameershah.my/
  **/
 
-add_action('woocommerce_thankyou', 'auto_coupon_on_order_complete');
+add_action('woocommerce_before_checkout_form', 'auto_apply_coupon');
+add_action('woocommerce_thankyou', 'auto_create_coupon');
 
-function auto_coupon_on_order_complete()
+
+function auto_create_coupon()
 {
     global $wp;
 
@@ -19,8 +21,26 @@ function auto_coupon_on_order_complete()
     $email = $order->get_billing_email();
 
     $coupon = new WC_Coupon($email);
+
     $coupon->set_date_expires(date('Y-m-d', strtotime('+1 day')));
     $coupon->set_free_shipping(true);
     $coupon->set_email_restrictions(array($email));
     $coupon->save();
+}
+
+function auto_apply_coupon()
+{
+    $email = WC()->session->get('customer')['email'];
+
+    if (empty($email)) {
+        return;
+    }
+
+    $coupons = WC()->cart->get_coupons();
+
+    if (!empty($coupons)) {
+        return;
+    }
+
+    WC()->cart->apply_coupon($email);
 }
