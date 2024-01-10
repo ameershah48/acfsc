@@ -8,8 +8,9 @@
  * Author URI: https://ameershah.my/
  **/
 
-add_action('woocommerce_before_checkout_form', 'auto_apply_coupon');
 add_action('woocommerce_thankyou', 'auto_create_coupon');
+add_action('woocommerce_before_cart', 'auto_apply_coupon');
+add_action('woocommerce_before_checkout_form', 'auto_apply_coupon');
 
 
 function auto_create_coupon()
@@ -33,7 +34,7 @@ function auto_apply_coupon()
     $email = WC()->session->get('customer')['email'];
     $coupons = WC()->cart->get_coupons();
 
-    if (empty($email) || empty($coupons)) {
+    if (empty($email) || !empty($coupons)) {
         return;
     }
 
