@@ -31,14 +31,15 @@ function auto_create_coupon()
 function auto_apply_coupon()
 {
     $email = WC()->session->get('customer')['email'];
+    $coupons = WC()->cart->get_coupons();
 
-    if (empty($email)) {
+    if (empty($email) || empty($coupons)) {
         return;
     }
 
-    $coupons = WC()->cart->get_coupons();
+    $coupon = new WC_Coupon($email);
 
-    if (!empty($coupons)) {
+    if (!$coupon->exists) {
         return;
     }
 
